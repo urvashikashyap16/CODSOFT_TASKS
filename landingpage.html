@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nightlight — late-night mental health support for students</title>
+<meta name="description" content="Nightlight connects students with trained counsellors between 9pm and 3am, the hours when campus offices are shut.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================
+   NIGHTLIGHT — landing page
+   The whole page is one long sunrise: it starts at 2am in the
+   dark and ends at dawn. Every section carries a timestamp.
+   ========================================================== */
+
+/* ---------- 1. TOKENS ---------- */
+:root{
+  --lamp:#FFB24D;          /* the warm light in the window */
+  --glow:#FFD9A0;
+  --cream:#FFF6EC;
+  --ink:#241E3D;           /* body text on light backgrounds */
+  --ink-soft:#4A4370;
+  --pale:#B9BEE0;          /* body text on dark backgrounds  */
+  --line-dark:rgba(255,255,255,.14);
+  --line-light:#EADCC9;
+
+  --display:'Bricolage Grotesque', system-ui, sans-serif;
+  --body:'Manrope', system-ui, -apple-system, sans-serif;
+  --mono:'DM Mono', ui-monospace, monospace;
+}
+
+/* ---------- 2. BASE ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--body);font-size:17px;line-height:1.7;color:#fff;
+  -webkit-font-smoothing:antialiased;
+  /* the sunrise: night at the top, morning at the bottom */
+  background:linear-gradient(180deg,
+    #070C1E 0%, #0B1128 12%, #161B44 26%, #2E2760 40%,
+    #563A6E 54%, #8B4F72 64%, #C4696B 72%, #E98C5E 79%,
+    #F7B274 85%, #FFD8AE 91%, #FFF0DC 96%, #FFF6EC 100%);
+}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.08;margin:0}
+p{margin:0}
+a{color:inherit}
+.shell{width:min(1140px,90vw);margin-inline:auto}
+.zone{padding-block:110px;scroll-margin-top:76px}
+:focus-visible{outline:2.5px solid var(--lamp);outline-offset:4px;border-radius:6px}
+.skip{position:absolute;left:-9999px;background:#fff;color:var(--ink);padding:12px 18px;z-index:99}
+.skip:focus{left:14px;top:14px}
+
+/* the timestamp that opens each section */
+.stamp{
+  font-family:var(--mono);font-size:.76rem;letter-spacing:.14em;
+  display:flex;align-items:center;gap:12px;margin-bottom:18px;color:var(--glow);
+}
+.stamp::after{content:"";flex:1;height:1px;background:currentColor;opacity:.3;max-width:90px}
+.stamp-dark{color:#A2582F}
+
+.zone h2{font-size:clamp(2rem,4.6vw,3.2rem);margin-bottom:16px;max-width:20ch}
+.zone-intro{max-width:52ch;font-size:1.06rem;margin-bottom:52px;color:var(--pale)}
+.on-light h2,.on-light h3{color:var(--ink)}
+.on-light .zone-intro{color:var(--ink-soft)}
+
+/* ---------- 3. BUTTONS ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--body);font-weight:600;font-size:.96rem;
+  padding:15px 28px;border-radius:999px;text-decoration:none;border:1.5px solid transparent;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s;
+}
+.btn:hover{transform:translateY(-3px)}
+.btn-lamp{background:var(--lamp);color:#2A1A05}
+.btn-lamp:hover{box-shadow:0 16px 34px -14px rgba(255,178,77,.85)}
+.btn-outline{border-color:rgba(255,255,255,.3);color:#fff}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.btn-ink{background:var(--ink);color:var(--cream)}
+.btn-ink:hover{box-shadow:0 16px 34px -16px rgba(36,30,61,.8)}
+
+/* ---------- 4. HEADER ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:rgba(7,12,30,.7);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-dark);
+}
+.topbar .shell{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:14px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.12rem;text-decoration:none;letter-spacing:-.02em}
+.logo i{width:11px;height:11px;border-radius:50%;background:var(--lamp);box-shadow:0 0 16px 4px rgba(255,178,77,.75)}
+.topbar nav{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.topbar nav a{font-size:.92rem;text-decoration:none;color:var(--pale);transition:color .2s}
+.topbar nav a:hover{color:#fff}
+.nav-cta{
+  font-size:.88rem;font-weight:600;color:#2A1A05!important;background:var(--lamp);
+  padding:9px 18px;border-radius:999px;transition:transform .18s;
+}
+.nav-cta:hover{transform:translateY(-2px)}
+
+/* ---------- 5. HERO ---------- */
+.hero{position:relative;overflow:hidden;padding-block:96px 88px}
+.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(2.6rem,6.4vw,4.5rem);font-weight:800;margin-bottom:26px;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--lamp)}
+.hero-lede{font-size:1.15rem;color:var(--pale);max-width:46ch;margin-bottom:36px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
+.online{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.8rem;color:var(--pale)}
+.online i{width:8px;height:8px;border-radius:50%;background:#6FE3A8;box-shadow:0 0 12px 2px rgba(111,227,168,.7)}
+
+/* the breathing circle — something useful within two seconds of landing */
+.breath-stage{display:grid;place-items:center;gap:22px}
+.breath{
+  width:min(300px,72vw);aspect-ratio:1;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 45%,rgba(255,217,160,.95),rgba(255,178,77,.28) 48%,transparent 72%);
+  animation:breathe 10s ease-in-out infinite;
+}
+.breath::before{
+  content:"";position:absolute;inset:-26px;border-radius:50%;
+  border:1px solid rgba(255,217,160,.28);
+}
+.breath span{font-family:var(--mono);font-size:.82rem;color:#3A2405;letter-spacing:.08em}
+@keyframes breathe{
+  0%,100%{transform:scale(.84)}
+  40%,52%{transform:scale(1.1)}
+}
+.breath-caption{font-family:var(--mono);font-size:.78rem;color:var(--pale);text-align:center}
+
+/* a few stars, quietly */
+.star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.6;animation:twinkle 4s ease-in-out infinite}
+.star:nth-child(1){top:12%;left:8%}
+.star:nth-child(2){top:26%;left:23%;animation-delay:1.1s}
+.star:nth-child(3){top:8%;right:18%;animation-delay:2.3s}
+.star:nth-child(4){bottom:22%;left:14%;animation-delay:.6s}
+.star:nth-child(5){top:40%;right:7%;animation-delay:1.8s}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.8}}
+
+/* ---------- 6. THREE-COLUMN REASONS ---------- */
+.cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card-dark{
+  background:rgba(255,255,255,.06);border:1px solid var(--line-dark);
+  border-radius:20px;padding:32px 28px;transition:transform .2s ease,background .2s ease;
+}
+.card-dark:hover{transform:translateY(-5px);background:rgba(255,255,255,.1)}
+.card-dark h3{font-size:1.25rem;margin-bottom:12px}
+.card-dark p{color:var(--pale);font-size:.98rem}
+.card-hour{font-family:var(--mono);font-size:.74rem;color:var(--lamp);letter-spacing:.1em;display:block;margin-bottom:14px}
+
+/* ---------- 7. HOW IT WORKS (a real sequence, so it's numbered) ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.step{padding:34px 30px 34px 0;border-top:2px solid rgba(255,255,255,.22);position:relative}
+.step + .step{padding-left:30px}
+.step-no{font-family:var(--mono);font-size:.8rem;color:var(--lamp);display:block;margin-bottom:14px}
+.step h3{font-size:1.3rem;margin-bottom:10px}
+.step p{color:var(--pale);font-size:.98rem}
+
+/* ---------- 8. TOPIC PILLS ---------- */
+.topics{display:flex;flex-wrap:wrap;gap:12px;max-width:920px}
+.topic{
+  border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:12px 22px;
+  font-size:1rem;background:rgba(255,255,255,.07);transition:background .2s,transform .2s;
+}
+.topic:hover{background:rgba(255,255,255,.16);transform:translateY(-3px)}
+.topic-strong{background:var(--lamp);border-color:var(--lamp);color:#2A1A05;font-weight:600}
+
+/* ---------- 9. QUOTES (light cards over the sunrise) ---------- */
+.quotes{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.quote{
+  background:var(--cream);color:var(--ink);border-radius:22px;padding:34px 32px;
+  box-shadow:0 24px 48px -30px rgba(20,10,40,.6);
+}
+.quote p{font-family:var(--display);font-weight:600;font-size:1.22rem;line-height:1.45;margin-bottom:18px}
+.quote footer{font-family:var(--mono);font-size:.76rem;color:#8A6A4A;letter-spacing:.06em}
+.quote-note{font-family:var(--mono);font-size:.76rem;color:#5C3A2E;margin-top:20px}
+
+/* ---------- 10. FAQ (plain HTML details, no JavaScript) ---------- */
+.faq{max-width:800px;background:var(--cream);border-radius:24px;padding:12px 34px;box-shadow:0 24px 48px -30px rgba(20,10,40,.55)}
+.faq details{border-bottom:1px solid var(--line-light);padding-block:22px}
+.faq details:last-child{border-bottom:0}
+.faq summary{
+  font-family:var(--display);font-weight:700;font-size:1.12rem;color:var(--ink);
+  cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;align-items:center;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);font-size:1.4rem;color:var(--lamp);line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq details p{color:var(--ink-soft);font-size:.99rem;margin-top:12px}
+
+/* ---------- 11. CLOSING CTA ---------- */
+.closing{text-align:center;padding-block:120px}
+.closing h2{font-size:clamp(2.1rem,5.4vw,3.6rem);color:var(--ink);margin:0 auto 18px;max-width:16ch}
+.closing p{color:var(--ink-soft);max-width:44ch;margin:0 auto 34px;font-size:1.08rem}
+
+/* ---------- 12. FOOTER ---------- */
+.site-footer{background:var(--cream);color:var(--ink);border-top:1px solid var(--line-light)}
+.crisis{
+  background:#2B2140;color:#FFE7C6;border-radius:18px;padding:24px 28px;margin-top:-46px;
+  display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;box-shadow:0 24px 48px -28px rgba(20,10,40,.7);
+}
+.crisis strong{font-family:var(--display);font-size:1.02rem}
+.crisis span{font-family:var(--mono);font-size:.86rem}
+.crisis a{color:var(--lamp);text-decoration:none;border-bottom:1px solid rgba(255,178,77,.5)}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-block:56px 30px}
+.foot-grid h4{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#8A6A4A;margin:0 0 16px}
+.foot-grid ul{list-style:none;margin:0;padding:0}
+.foot-grid li{margin-bottom:10px}
+.foot-grid a{text-decoration:none;color:var(--ink-soft);transition:color .2s}
+.foot-grid a:hover{color:var(--ink)}
+.foot-blurb{color:var(--ink-soft);max-width:38ch;margin-top:14px;font-size:.96rem}
+.foot-base{
+  border-top:1px solid var(--line-light);padding-block:22px;display:flex;justify-content:space-between;
+  gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:.74rem;color:#8A6A4A;
+}
+
+/* ---------- 13. RESPONSIVE ---------- */
+@media (max-width:940px){
+  .hero-grid{grid-template-columns:1fr;gap:52px}
+  .breath-stage{order:-1}
+  .cols-3,.steps,.quotes{grid-template-columns:1fr}
+  .step{padding:26px 0}
+  .step + .step{padding-left:0}
+  .foot-grid{grid-template-columns:1fr;gap:32px}
+}
+@media (max-width:600px){
+  body{font-size:16px}
+  .zone{padding-block:78px}
+  .topbar nav{gap:14px}
+  .topbar nav a{font-size:.82rem}
+  .hero{padding-block:62px 68px}
+  .faq{padding:8px 22px}
+  .crisis{padding:20px}
+  .closing{padding-block:88px}
+}
+
+/* ---------- 14. MOTION PREFERENCES ---------- */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .breath,.star{animation:none}
+  *{transition:none!important}
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ================= HEADER ================= -->
+<header class="topbar">
+  <div class="shell">
+    <a class="logo" href="#top"><i></i> Nightlight</a>
+    <nav>
+      <a href="#why">Why nights</a>
+      <a href="#how">How it works</a>
+      <a href="#topics">What people bring</a>
+      <a href="#faq">Questions</a>
+      <a class="nav-cta" href="#start">Start a chat</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+  <div class="shell hero-grid">
+    <div>
+      <p class="stamp">02:14 · Tuesday</p>
+      <h1>Your brain doesn't clock out at <em>5pm</em>. Neither do we.</h1>
+      <p class="hero-lede">
+        Nightlight puts you in a chat with a trained counsellor between 9pm and 3am — the hours when
+        campus offices are shut, your roommate is asleep, and everything feels a size too big.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-lamp" href="#start">Start a chat — it's free</a>
+        <a class="btn btn-outline" href="#how">See how it works</a>
+      </div>
+      <p class="online"><i></i> 12 counsellors online right now · average wait 4 minutes</p>
+    </div>
+
+    <div class="breath-stage">
+      <div class="breath"><span>breathe</span></div>
+      <p class="breath-caption">In for 4, out for 6.<br>Follow the circle while you decide.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY NIGHTS ================= -->
+<section class="zone shell" id="why">
+  <p class="stamp">03:12 · the quiet hours</p>
+  <h2>Support that keeps the same hours as the problem</h2>
+  <p class="zone-intro">Most counselling services close before the hard part of the day begins. Nightlight opens when they close.</p>
+
+  <div class="cols-3">
+    <article class="card-dark">
+      <span class="card-hour">21:00 — 03:00</span>
+      <h3>Open when help usually isn't</h3>
+      <p>Campus counselling runs office hours. Nights, weekends and the week before exams are exactly when students say they need someone — so that's when we're staffed.</p>
+    </article>
+    <article class="card-dark">
+      <span class="card-hour">No account</span>
+      <h3>Nothing to sign up for</h3>
+      <p>No form, no email verification, no waiting room. Tap the button, answer three short questions, and you're talking to a person.</p>
+    </article>
+    <article class="card-dark">
+      <span class="card-hour">Text first</span>
+      <h3>Typing is easier than talking</h3>
+      <p>Every conversation starts as a chat. If it helps to move to a call, you can — but only if you ask. Plenty of people never do, and that's fine.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="zone shell" id="how">
+  <p class="stamp">04:05 · before it gets light</p>
+  <h2>Three steps, about four minutes</h2>
+  <p class="zone-intro">The whole point is that it should take less effort than staying awake with it.</p>
+
+  <div class="steps">
+    <article class="step">
+      <span class="step-no">Step 01</span>
+      <h3>Tell us roughly what's going on</h3>
+      <p>Three questions, all optional. Pick a topic or type your own words — one line is enough.</p>
+    </article>
+    <article class="step">
+      <span class="step-no">Step 02</span>
+      <h3>We match you with a counsellor</h3>
+      <p>Usually inside four minutes. You'll see their name, qualification and languages before the chat opens.</p>
+    </article>
+    <article class="step">
+      <span class="step-no">Step 03</span>
+      <h3>Talk for as long as you need</h3>
+      <p>No session timer. At the end you can save the chat, delete it, or book a follow-up for the same counsellor.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= TOPICS ================= -->
+<section class="zone shell" id="topics">
+  <p class="stamp">05:20 · first light</p>
+  <h2>You don't need a diagnosis to be allowed in</h2>
+  <p class="zone-intro">These are the things students actually bring to us, in the words they use.</p>
+
+  <div class="topics">
+    <span class="topic">Exam pressure</span>
+    <span class="topic">Can't sleep</span>
+    <span class="topic">Homesick</span>
+    <span class="topic">A breakup</span>
+    <span class="topic">Family expectations</span>
+    <span class="topic">Placement season</span>
+    <span class="topic">Burnt out</span>
+    <span class="topic">Money worries</span>
+    <span class="topic">Feeling behind everyone</span>
+    <span class="topic topic-strong">"I don't know, I just feel off"</span>
+  </div>
+</section>
+
+<!-- ================= QUOTES ================= -->
+<section class="zone shell">
+  <p class="stamp stamp-dark">06:02 · sunrise</p>
+  <div class="quotes">
+    <article class="quote">
+      <p>"I'd been putting off talking to anyone for a whole semester because booking an appointment felt like admitting something. Typing at midnight didn't."</p>
+      <footer>Second year, Computer Science</footer>
+    </article>
+    <article class="quote">
+      <p>"She didn't try to fix my exam schedule. She just asked what the worst part of the day was. Turned out it wasn't the exams at all."</p>
+      <footer>Final year, Mechanical</footer>
+    </article>
+  </div>
+  <p class="quote-note">Shared with permission. Names and details changed.</p>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="zone shell" id="faq">
+  <p class="stamp stamp-dark">06:40 · morning</p>
+  <div class="faq">
+    <details open>
+      <summary>Is it really free?</summary>
+      <p>Yes, for any student with a valid college ID. Nightlight is funded by partner institutions, so nothing is charged to you and nothing appears on a family bill.</p>
+    </details>
+    <details>
+      <summary>Who am I actually talking to?</summary>
+      <p>Qualified counsellors and clinical psychologists, each with a postgraduate qualification in psychology or counselling. You'll see their name and credentials before the chat starts.</p>
+    </details>
+    <details>
+      <summary>Will my college find out?</summary>
+      <p>No. Your chats aren't shared with your institution, and partner colleges only ever receive anonymous usage totals — never names, topics or transcripts.</p>
+    </details>
+    <details>
+      <summary>What if it's an emergency?</summary>
+      <p>If you or someone else is in immediate danger, call 112. For urgent mental health support anywhere in India, Tele-MANAS is free and open around the clock on 14416.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ================= CLOSING CTA ================= -->
+<section class="closing shell" id="start">
+  <h2>The sun comes up either way</h2>
+  <p>You just don't have to sit through the rest of the night on your own. Someone's online now.</p>
+  <a class="btn btn-ink" href="#start">Start a chat — it's free</a>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="crisis">
+      <strong>In a crisis right now?</strong>
+      <span>Emergency: <a href="tel:112">112</a></span>
+      <span>Tele-MANAS: <a href="tel:14416">14416</a></span>
+      <span>KIRAN: <a href="tel:18005990019">1800-599-0019</a></span>
+      <span>Free · 24×7</span>
+    </div>
+
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top" style="color:var(--ink)"><i></i> Nightlight</a>
+        <p class="foot-blurb">Late-night mental health support for students, 9pm to 3am, seven nights a week.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#why">Why nights</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#topics">What people bring</a></li>
+          <li><a href="#faq">Questions</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>More</h4>
+        <ul>
+          <li><a href="#start">For colleges</a></li>
+          <li><a href="#start">Work with us</a></li>
+          <li><a href="#faq">Privacy</a></li>
+          <li><a href="#start">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-base">
+      <span>© 2026 Nightlight</span>
+      <span>A student web development project — Nightlight is not a real service. The helpline numbers above are.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
