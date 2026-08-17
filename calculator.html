@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculator — HTML, CSS &amp; JavaScript</title>
+<meta name="description" content="A desk calculator built with HTML, CSS Grid and vanilla JavaScript, with a printed paper tape of every calculation.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================
+   A desk calculator, in the spirit of the old Braun machines:
+   graphite body, olive function keys, one yellow equals key,
+   a pale LCD — and a paper tape that prints every sum.
+   ========================================================== */
+
+/* ---------- TOKENS ---------- */
+:root{
+  --paper:#E9E4D9;        /* the desk it sits on          */
+  --tape:#FCFAF4;         /* the receipt roll             */
+  --graphite:#212327;     /* the body                     */
+  --key:#33373D;
+  --key-hi:#41464E;
+  --olive:#6E7F51;        /* operator keys                */
+  --olive-hi:#7E9060;
+  --yellow:#F0BE2C;       /* the equals key, used once    */
+  --lcd:#B8C2AC;          /* liquid-crystal green-grey    */
+  --lcd-ink:#181C15;
+  --ink:#26282C;
+  --muted:#8A857A;
+
+  --face:'Space Grotesk', system-ui, sans-serif;
+  --digits:'Share Tech Mono', ui-monospace, monospace;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* ---------- BASE ---------- */
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;background:var(--paper);color:var(--ink);
+  font-family:var(--face);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;gap:26px;
+  /* faint desk grid, just enough to feel like a surface */
+  background-image:radial-gradient(rgba(0,0,0,.05) 1px,transparent 1px);
+  background-size:22px 22px;
+}
+button{font:inherit;cursor:pointer;border:0}
+:focus-visible{outline:2.5px solid var(--yellow);outline-offset:3px}
+
+.page-head{text-align:center;max-width:44ch}
+.page-head h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;margin:0 0 6px}
+.page-head p{margin:0;color:var(--muted);font-family:var(--mono);font-size:.8rem}
+
+/* ---------- LAYOUT ---------- */
+.bench{display:grid;grid-template-columns:auto 250px;gap:30px;align-items:start}
+
+/* ---------- THE MACHINE ---------- */
+.machine{
+  width:340px;background:var(--graphite);border-radius:22px;padding:20px;
+  box-shadow:0 30px 50px -24px rgba(20,20,25,.65),inset 0 1px 0 rgba(255,255,255,.08);
+}
+.plate{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  color:#7C818B;margin-bottom:14px;padding-inline:2px;
+}
+.plate span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--yellow);margin-right:8px;vertical-align:1px}
+
+/* ---------- DISPLAY ---------- */
+.lcd{
+  background:var(--lcd);border-radius:12px;padding:16px 18px 14px;margin-bottom:18px;
+  box-shadow:inset 0 3px 10px rgba(0,0,0,.28);text-align:right;overflow:hidden;
+}
+.lcd-sub{
+  font-family:var(--digits);font-size:.92rem;color:rgba(24,28,21,.55);
+  min-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lcd-main{
+  font-family:var(--digits);font-size:2.6rem;line-height:1.15;color:var(--lcd-ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.lcd-main.small{font-size:1.7rem}
+
+/* ---------- KEYPAD (CSS Grid) ---------- */
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.key{
+  background:var(--key);color:#F2F1EE;border-radius:13px;
+  height:60px;font-size:1.28rem;font-weight:500;
+  display:grid;place-items:center;
+  box-shadow:0 3px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09);
+  transition:background .12s,transform .06s,box-shadow .06s;
+}
+.key:hover{background:var(--key-hi)}
+.key:active,.key.pressed{transform:translateY(3px);box-shadow:0 0 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.09)}
+.key-fn{background:var(--key-hi);font-size:1.05rem;color:#D7DBD2}
+.key-fn:hover{background:#4E545D}
+.key-op{background:var(--olive);font-size:1.45rem}
+.key-op:hover{background:var(--olive-hi)}
+.key-op.armed{background:var(--yellow);color:#2A2205}   /* shows which operator is waiting */
+.key-eq{background:var(--yellow);color:#2A2205;font-weight:700}
+.key-eq:hover{background:#F7CB4E}
+.span-2{grid-column:span 2}
+
+/* ---------- PAPER TAPE ---------- */
+.tape{position:relative;filter:drop-shadow(0 18px 26px rgba(30,28,22,.22))}
+.tape-roll{background:var(--tape);border-radius:6px 6px 0 0;padding:20px 20px 8px;min-height:300px}
+.tape-roll h2{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 14px;padding-bottom:10px;border-bottom:1px dashed #DAD4C6;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.tape-clear{background:none;color:var(--muted);font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-decoration:underline;padding:0}
+.tape-clear:hover{color:var(--ink)}
+.tape-list{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:.8rem}
+.tape-list li{padding-block:9px;border-bottom:1px dashed #E6E0D2;animation:print .25s ease-out}
+.tape-list li:last-child{border-bottom:0}
+.tape-list .expr{color:var(--muted);display:block;font-size:.74rem}
+.tape-list .res{color:var(--ink);font-weight:500}
+.tape-empty{color:#B5AF9F;font-family:var(--mono);font-size:.76rem;line-height:1.7}
+@keyframes print{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+/* torn edge along the bottom of the roll */
+.tape-tear{
+  height:12px;
+  background-image:linear-gradient(45deg,var(--paper) 50%,transparent 50%),
+                   linear-gradient(-45deg,var(--paper) 50%,transparent 50%);
+  background-size:14px 14px;background-repeat:repeat-x;background-color:var(--tape);
+}
+
+.hint{font-family:var(--mono);font-size:.74rem;color:var(--muted);text-align:center}
+.hint kbd{background:#fff;border:1px solid #D8D2C4;border-bottom-width:2px;border-radius:5px;padding:2px 6px;font-family:inherit;font-size:.72rem}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:700px){
+  .bench{grid-template-columns:1fr;gap:24px;justify-items:center}
+  .machine{width:min(340px,92vw)}
+  .tape{width:min(340px,92vw)}
+  .tape-roll{min-height:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page-head">
+  <h1>Desk Calculator</h1>
+  <p>HTML · CSS Grid · vanilla JavaScript</p>
+</div>
+
+<div class="bench">
+
+  <!-- ============ THE CALCULATOR ============ -->
+  <section class="machine" aria-label="Calculator">
+    <div class="plate">
+      <span>Model UK-03</span>
+      <span style="letter-spacing:.14em">Standard</span>
+    </div>
+
+    <!-- Display. aria-live means screen readers announce each new result. -->
+    <div class="lcd">
+      <div class="lcd-sub" id="sub">&nbsp;</div>
+      <div class="lcd-main" id="main" aria-live="polite" aria-atomic="true">0</div>
+    </div>
+
+    <!-- Keypad laid out as a 4-column CSS Grid -->
+    <div class="keypad">
+      <button class="key key-fn" data-action="clear">AC</button>
+      <button class="key key-fn" data-action="delete" aria-label="Backspace">&#9003;</button>
+      <button class="key key-fn" data-action="percent">%</button>
+      <button class="key key-op" data-op="÷" aria-label="Divide">÷</button>
+
+      <button class="key" data-num="7">7</button>
+      <button class="key" data-num="8">8</button>
+      <button class="key" data-num="9">9</button>
+      <button class="key key-op" data-op="×" aria-label="Multiply">×</button>
+
+      <button class="key" data-num="4">4</button>
+      <button class="key" data-num="5">5</button>
+      <button class="key" data-num="6">6</button>
+      <button class="key key-op" data-op="−" aria-label="Subtract">−</button>
+
+      <button class="key" data-num="1">1</button>
+      <button class="key" data-num="2">2</button>
+      <button class="key" data-num="3">3</button>
+      <button class="key key-op" data-op="+" aria-label="Add">+</button>
+
+      <button class="key key-fn" data-action="sign" aria-label="Plus minus">±</button>
+      <button class="key" data-num="0">0</button>
+      <button class="key" data-num=".">.</button>
+      <button class="key key-eq" data-action="equals" aria-label="Equals">=</button>
+    </div>
+  </section>
+
+  <!-- ============ PAPER TAPE ============ -->
+  <aside class="tape" aria-label="Calculation history">
+    <div class="tape-roll">
+      <h2>Tape <button class="tape-clear" id="clearTape">clear</button></h2>
+      <ul class="tape-list" id="tapeList"></ul>
+    </div>
+    <div class="tape-tear"></div>
+  </aside>
+
+</div>
+
+<p class="hint">Keyboard works too — digits, <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd>, <kbd>Enter</kbd>, <kbd>Backspace</kbd>, <kbd>Esc</kbd></p>
+
+<script>
+/* ==========================================================
+   CALCULATOR LOGIC
+   State lives in four variables; every button just changes
+   that state and asks the display to redraw itself.
+   ========================================================== */
+
+const mainEl  = document.getElementById('main');   // the big number
+const subEl   = document.getElementById('sub');    // the line above it
+const tapeEl  = document.getElementById('tapeList');
+
+let current   = '0';      // what's being typed right now
+let previous  = null;     // the number stored before an operator
+let operator  = null;     // '+', '−', '×' or '÷'
+let freshEntry = true;    // true = the next digit starts a new number
+let history   = [];       // every finished sum, for the paper tape
+
+/* ---------- DISPLAY ---------- */
+
+// 1234567.89  ->  1,234,567.89   (but leave a half-typed "12." alone)
+function format(value){
+  if(value === 'Error') return value;
+  const [whole, decimal] = value.split('.');
+  const grouped = Number(whole).toLocaleString('en-IN');
+  if(decimal !== undefined) return grouped + '.' + decimal;
+  return value.endsWith('.') ? grouped + '.' : grouped;
+}
+
+function updateDisplay(){
+  const shown = format(current);
+  mainEl.textContent = shown;
+  // long numbers get a smaller type size so they never overflow the LCD
+  mainEl.classList.toggle('small', shown.length > 11);
+
+  if(operator !== null && previous !== null){
+    subEl.textContent = format(previous) + ' ' + operator;
+  }else{
+    subEl.innerHTML = '&nbsp;';
+  }
+
+  // highlight whichever operator key is waiting for a second number
+  document.querySelectorAll('[data-op]').forEach(function(btn){
+    btn.classList.toggle('armed', operator !== null && btn.dataset.op === operator && freshEntry);
+  });
+}
+
+/* ---------- INPUT ---------- */
+
+function appendNumber(char){
+  if(current === 'Error') clearAll();
+
+  if(freshEntry){
+    current = (char === '.') ? '0.' : char;
+    freshEntry = false;
+  }else if(char === '.'){
+    if(current.includes('.')) return;      // only one decimal point allowed
+    current += '.';
+  }else{
+    if(current.replace('-','').replace('.','').length >= 12) return;  // digit limit
+    current = (current === '0') ? char : current + char;
+  }
+  updateDisplay();
+}
+
+function chooseOperator(op){
+  if(current === 'Error') return;
+
+  // 5 + 3 × ...  → work out the 5 + 3 first, then carry on
+  if(operator !== null && !freshEntry){
+    compute();
+  }else{
+    previous = current;
+  }
+  operator = op;
+  freshEntry = true;
+  updateDisplay();
+}
+
+/* ---------- THE ARITHMETIC ---------- */
+
+function compute(){
+  if(operator === null || previous === null) return;
+
+  const a = parseFloat(previous);
+  const b = parseFloat(current);
+  let result;
+
+  if(operator === '+'){
+    result = a + b;
+  }else if(operator === '−'){
+    result = a - b;
+  }else if(operator === '×'){
+    result = a * b;
+  }else if(operator === '÷'){
+    if(b === 0){                    // guard against dividing by zero
+      showError();
+      return;
+    }
+    result = a / b;
+  }
+
+  // trim floating-point noise: 0.1 + 0.2 should read 0.3, not 0.30000000000000004
+  result = Math.round((result + Number.EPSILON) * 1e10) / 1e10;
+
+  addToTape(format(previous) + ' ' + operator + ' ' + format(current), format(String(result)));
+
+  current = String(result);
+  previous = null;
+  operator = null;
+  freshEntry = true;
+  updateDisplay();
+}
+
+function showError(){
+  current = 'Error';
+  previous = null;
+  operator = null;
+  freshEntry = true;
+  addToTape('divide by zero', 'Error');
+  updateDisplay();
+}
+
+/* ---------- THE SMALLER KEYS ---------- */
+
+function clearAll(){
+  current = '0'; previous = null; operator = null; freshEntry = true;
+  updateDisplay();
+}
+
+function deleteDigit(){
+  if(current === 'Error' || freshEntry) return;
+  current = current.length > 1 ? current.slice(0, -1) : '0';
+  if(current === '-') current = '0';
+  updateDisplay();
+}
+
+function toggleSign(){
+  if(current === 'Error' || current === '0') return;
+  current = current.startsWith('-') ? current.slice(1) : '-' + current;
+  updateDisplay();
+}
+
+function percent(){
+  if(current === 'Error') return;
+  current = String(parseFloat(current) / 100);
+  freshEntry = false;
+  updateDisplay();
+}
+
+/* ---------- THE PAPER TAPE ---------- */
+
+function addToTape(expression, result){
+  history.push({ expression: expression, result: result });
+  if(history.length > 40) history.shift();     // keep the roll a sensible length
+  renderTape();
+}
+
+// A loop redraws the whole list, newest entry at the top
+function renderTape(){
+  if(history.length === 0){
+    tapeEl.innerHTML = '<li class="tape-empty">Nothing printed yet.<br>Every sum you finish lands here.</li>';
+    return;
+  }
+
+  let rows = '';
+  for(let i = history.length - 1; i >= 0; i--){
+    rows += '<li><span class="expr">' + history[i].expression + '</span>'
+          + '<span class="res">= ' + history[i].result + '</span></li>';
+  }
+  tapeEl.innerHTML = rows;
+}
+
+/* ---------- EVENT LISTENERS ---------- */
+
+document.querySelectorAll('.key').forEach(function(button){
+  button.addEventListener('click', function(){
+    const num = button.dataset.num;
+    const op = button.dataset.op;
+    const action = button.dataset.action;
+
+    if(num !== undefined){
+      appendNumber(num);
+    }else if(op !== undefined){
+      chooseOperator(op);
+    }else if(action === 'equals'){
+      compute();
+    }else if(action === 'clear'){
+      clearAll();
+    }else if(action === 'delete'){
+      deleteDigit();
+    }else if(action === 'sign'){
+      toggleSign();
+    }else if(action === 'percent'){
+      percent();
+    }
+  });
+});
+
+document.getElementById('clearTape').addEventListener('click', function(){
+  history = [];
+  renderTape();
+});
+
+// Keyboard support — each key also flashes its matching button
+document.addEventListener('keydown', function(event){
+  const k = event.key;
+  let selector = null;
+
+  if(k >= '0' && k <= '9'){          selector = '[data-num="' + k + '"]'; }
+  else if(k === '.'){                selector = '[data-num="."]'; }
+  else if(k === '+'){                selector = '[data-op="+"]'; }
+  else if(k === '-'){                selector = '[data-op="−"]'; }
+  else if(k === '*'){                selector = '[data-op="×"]'; }
+  else if(k === '/'){ event.preventDefault(); selector = '[data-op="÷"]'; }
+  else if(k === 'Enter' || k === '='){ event.preventDefault(); selector = '[data-action="equals"]'; }
+  else if(k === 'Backspace'){        selector = '[data-action="delete"]'; }
+  else if(k === 'Escape'){           selector = '[data-action="clear"]'; }
+  else if(k === '%'){                selector = '[data-action="percent"]'; }
+
+  if(selector === null) return;
+
+  const button = document.querySelector(selector);
+  button.click();
+  button.classList.add('pressed');
+  setTimeout(function(){ button.classList.remove('pressed'); }, 90);
+});
+
+/* ---------- START ---------- */
+renderTape();
+updateDisplay();
+</script>
+
+</body>
+</html>
